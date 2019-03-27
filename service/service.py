@@ -1,66 +1,165 @@
-import json
-from flask import Flask, request, Response
-from azure.eventhub import EventHubClient, Offset, subscribe
-from ast import literal_eval
+# import json
+from flask import Flask, request
+from azure.eventprocessorhost import (
+    AbstractEventProcessor,
+    AzureStorageCheckpointLeaseManager,
+    EventHubConfig,
+    EventProcessorHost,
+    EPHOptions)
+# from azure.eventhub import EventHubClient, Offset
+# from ast import literal_eval
 import logging
+import asyncio
 import cherrypy
 import os
+# import dotenv
+
+# import datatransformer
+# import blobsender
+
 
 app = Flask(__name__)
 
-address = os.environ.get('address')
+LOGGER = logging.getLogger(__name__)
 
-# Access tokens for event hub namespace, from Azure portal for namespace
-user = os.environ.get('user')
-key = os.environ.get('key')
-consumergroup = os.environ.get('consumergroup')
 
-PARTITION = "0"
+class EventProcessor(AbstractEventProcessor):
+    """
+    Data Pipeline Event Processor
+    """
 
-# address = "amqps://simentest.servicebus.windows.net/hafslund3"
-# consumergroup = "$default"
-# user = "RootManageSharedAccessKey"
-# key = "TdFr9BVV7ACjSCzSFO2XDz0RN/URDopKNVOPPmID0v4="
+    def __init__(self, params=None):
+        """
+        Init Event processor
+        """
+        super().__init__(params)
+        self._msg_counter = 0
 
-if not address:
-    logging.error("No event hub address supplied")
+
+    async def open_async(self, context):
+        """
+        Called by processor host to initialize the event processor.
+        """
+        LOGGER.info("Connection established %s", context.partition_id)
+
+
+    async def close_async(self, context, reason):
+        """
+        Called by processor host to indicate that the event processor is being stopped.
+        :param context: Information about the partition
+        :type context: ~azure.eventprocessorhost.PartitionContext
+        """
+        LOGGER.info("Connection closed (reason %s, id %s, offset %s, sq_number %s)",\
+            reason,\
+            context.partition_id,\
+            context.offset,\
+            context.sequence_number)
+
+
+    async def process_events_async(self, context, messages):
+        """
+        Called by the processor host when a batch of events has arrived.
+        This is where the real work of the event processor is done.
+        :param context: Information about the partition
+        :type context: ~azure.eventprocessorhost.PartitionContext
+        :param messages: The events to be processed.
+        :type messages: list[~azure.eventhub.common.EventData]
+        """
+        LOGGER.info("Events processed %s", context.sequence_number)
+        LOGGER.info("Message: %s", messages)
+        for message in messages:
+            body = message.body_as_str()
+            LOGGER.info("MESSAGE BODY: %s", body)
+            # transformed_body = datatransformer.transform(body)
+            # LOGGER.info("MESSAGE TRANSFORMED BODY: %s", transformed_body)
+            # blobsender.uploadblob(transformed_body)
+        await context.checkpoint_async()
+
+
+    async def process_error_async(self, context, error):
+        """
+        Called when the underlying client experiences an error while receiving.
+        EventProcessorHost will take care of recovering from the error and
+        continuing to pump messages,so no action is required from
+        :param context: Information about the partition
+        :type context: ~azure.eventprocessorhost.PartitionContext
+        :param error: The error that occured.
+        """
+        LOGGER.error("Event Processor Error {%s}, {%s}", error, context)
+
+
+async def wait_and_close(host):
+    """
+    Run EventProcessorHost indefinetely
+    """
+    LOGGER.debug("Host: %s", host)
+    while True:
+        await asyncio.sleep(1)
 
 
 @app.route('/', methods=['GET', 'POST'])
 def get():
-    if request.args.get('since') is None:
-        since = -1
-    else:
-        since = request.args.get('since')
-    client = EventHubClient(address, debug=False, username=user, password=key)
+    """
+    Main method of this module
+    """
     try:
-        receiver = client.add_receiver(consumergroup, PARTITION, prefetch=100000, offset=Offset(since), keep_alive=7200)
-        client.run()
-        print(client.get_eventhub_info())
-        # if err is not None:
-        #     logging.error("Client run: " + err)
-    except KeyboardInterrupt:
-        pass
+        loop = asyncio.get_event_loop()
 
-    def generate():
-        yield '['
-        index = 0
-        batched_events = receiver.receive(max_batch_size=100000, timeout=5000)
-        for event_data in batched_events:
-            if index > 0:
-                yield ','
-            # parse x:
-            last_sn = event_data.sequence_number
-            data = str(event_data.message)
-            output_entity = literal_eval(data)
-            output_entity.update({"_updated": str(last_sn)})
-            yield json.dumps(output_entity)
-            index = index + 1
-        yield ']'
-    return Response(generate(), mimetype='application/json')
+        # Storage Account Credentials
+        storage_account_name = os.environ.get('AZURE_STORAGE_ACCOUNT')
+        storage_key = os.environ.get('AZURE_STORAGE_ACCESS_KEY')
+        storage_container_lease = os.environ.get('EVENT_HUB_STORAGE_CONTAINER')
+
+        # namespace = os.environ.get('EVENT_HUB_NAMESPACE')
+        # eventhub = os.environ.get('EVENT_HUB_NAME')
+        # user = os.environ.get('EVENT_HUB_SAS_POLICY')
+        # key = os.environ.get('EVENT_HUB_SAS_KEY')
+        # consumer_group = os.environ.get('EVENT_HUB_CONSUMER_GROUP')
+
+        namespace = ''  # os.environ.get('address')
+        eventhub = os.environ.get('address')
+        user = os.environ.get('user')
+        key = os.environ.get('key')
+        consumer_group = os.environ.get('consumergroup')
+
+        # Eventhub config and storage manager
+        eh_config = EventHubConfig(namespace, eventhub, user, key, consumer_group=consumer_group)
+        eh_options = EPHOptions()
+        eh_options.release_pump_on_timeout = True
+        eh_options.debug_trace = False
+        storage_manager = AzureStorageCheckpointLeaseManager(\
+            storage_account_name, storage_key, storage_container_lease)
+
+        # Event loop and host
+        host = EventProcessorHost(
+            EventProcessor,
+            eh_config,
+            storage_manager,
+            ep_params=[],
+            eph_options=eh_options,
+            loop=loop)
+
+        tasks = asyncio.gather(
+            host.open_async(),
+            wait_and_close(host))
+
+        loop.run_until_complete(tasks)
+
+    except KeyboardInterrupt:
+        # Canceling pending tasks and stopping the loop
+        for task in asyncio.Task.all_tasks():
+            task.cancel()
+        loop.run_forever()
+        tasks.exception()
+
+    finally:
+        loop.stop()
 
 
 if __name__ == '__main__':
+    LOG_FMT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    logging.basicConfig(level=logging.INFO, format=LOG_FMT)
+
     cherrypy.tree.graft(app, '/')
 
     # Set the configuration of the web server to production mode
