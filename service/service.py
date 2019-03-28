@@ -13,6 +13,7 @@ import asyncio
 import cherrypy
 import os
 # import dotenv
+from pprint import pprint
 
 # import datatransformer
 # import blobsender
@@ -35,13 +36,11 @@ class EventProcessor(AbstractEventProcessor):
         super().__init__(params)
         self._msg_counter = 0
 
-
     async def open_async(self, context):
         """
         Called by processor host to initialize the event processor.
         """
         LOGGER.info("Connection established %s", context.partition_id)
-
 
     async def close_async(self, context, reason):
         """
@@ -54,7 +53,6 @@ class EventProcessor(AbstractEventProcessor):
             context.partition_id,\
             context.offset,\
             context.sequence_number)
-
 
     async def process_events_async(self, context, messages):
         """
@@ -74,7 +72,6 @@ class EventProcessor(AbstractEventProcessor):
             # LOGGER.info("MESSAGE TRANSFORMED BODY: %s", transformed_body)
             # blobsender.uploadblob(transformed_body)
         await context.checkpoint_async()
-
 
     async def process_error_async(self, context, error):
         """
@@ -124,8 +121,10 @@ def get():
 
         # Eventhub config and storage manager
         eh_config = EventHubConfig(namespace, eventhub, user, key, consumer_group=consumer_group)
+        pprint(eh_config)
         eh_options = EPHOptions()
         eh_options.release_pump_on_timeout = True
+        # eh_options.
         eh_options.debug_trace = False
         storage_manager = AzureStorageCheckpointLeaseManager(\
             storage_account_name, storage_key, storage_container_lease)
