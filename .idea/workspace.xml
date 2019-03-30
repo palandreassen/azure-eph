@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="62d31e11-7427-4620-962a-c9f3bd7970fd" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/service/service.py" beforeDir="false" afterPath="$PROJECT_DIR$/service/service.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,8 +15,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/service/service.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="248">
-              <caret line="155" column="25" lean-forward="true" selection-start-line="155" selection-start-column="25" selection-end-line="155" selection-end-column="25" />
+            <state relative-caret-position="1681">
+              <caret line="148" column="45" lean-forward="true" selection-start-line="148" selection-start-column="45" selection-end-line="148" selection-end-column="45" />
               <folding>
                 <element signature="e#14#46#0" expanded="true" />
               </folding>
@@ -59,8 +57,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/../eventhub/service/service.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="725">
-              <caret line="55" selection-start-line="55" selection-end-line="55" />
+            <state relative-caret-position="1044">
+              <caret line="63" column="26" lean-forward="true" selection-start-line="63" selection-start-column="26" selection-end-line="63" selection-end-column="26" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -73,6 +71,7 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>context</find>
+      <find>storage_manager</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -85,12 +84,12 @@
         <option value="$PROJECT_DIR$/service/requirements.txt" />
         <option value="$PROJECT_DIR$/tmp/simen/hafslund/service.py" />
         <option value="$PROJECT_DIR$/service/service.py" />
+        <option value="$PROJECT_DIR$/../eventhub/service/service.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="293" />
-    <option name="y" value="19" />
+    <option name="x" value="564" />
     <option name="width" value="2560" />
     <option name="height" value="1439" />
   </component>
@@ -171,11 +170,11 @@
     <editor active="true" />
     <layout>
       <window_info id="Favorites" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4996249" visible="true" weight="0.16507684" />
-      <window_info active="true" id="Structure" order="1" sideWeight="0.5003751" side_tool="true" visible="true" weight="0.16507684" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49967512" visible="true" weight="0.1346052" />
+      <window_info id="Structure" order="1" sideWeight="0.5003249" side_tool="true" weight="0.1346052" />
       <window_info anchor="bottom" id="Version Control" />
       <window_info anchor="bottom" id="Python Console" />
-      <window_info anchor="bottom" id="Terminal" visible="true" weight="0.23915525" />
+      <window_info active="true" anchor="bottom" id="Terminal" visible="true" weight="0.12157534" />
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
@@ -223,8 +222,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/service/service.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="248">
-          <caret line="155" column="25" lean-forward="true" selection-start-line="155" selection-start-column="25" selection-end-line="155" selection-end-column="25" />
+        <state relative-caret-position="1681">
+          <caret line="148" column="45" lean-forward="true" selection-start-line="148" selection-start-column="45" selection-end-line="148" selection-end-column="45" />
           <folding>
             <element signature="e#14#46#0" expanded="true" />
           </folding>
@@ -233,8 +232,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../eventhub/service/service.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="725">
-          <caret line="55" selection-start-line="55" selection-end-line="55" />
+        <state relative-caret-position="1044">
+          <caret line="63" column="26" lean-forward="true" selection-start-line="63" selection-start-column="26" selection-end-line="63" selection-end-column="26" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>

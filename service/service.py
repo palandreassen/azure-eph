@@ -2,7 +2,7 @@
 from flask import Flask, request
 from azure.eventprocessorhost import (
     AbstractEventProcessor,
-    AzureStorageCheckpointLeaseManager,
+  #  AzureStorageCheckpointLeaseManager,
     EventHubConfig,
     EventProcessorHost,
     EPHOptions)
@@ -94,7 +94,7 @@ async def wait_and_close(host):
         await asyncio.sleep(1)
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 def get():
     """
     Main method of this module
@@ -108,32 +108,32 @@ def get():
         storage_container_lease = os.environ.get('EVENT_HUB_STORAGE_CONTAINER')
 
         # namespace = os.environ.get('EVENT_HUB_NAMESPACE')
-        # eventhub = os.environ.get('EVENT_HUB_NAME')
+        # event_hub = os.environ.get('EVENT_HUB_NAME')
         # user = os.environ.get('EVENT_HUB_SAS_POLICY')
         # key = os.environ.get('EVENT_HUB_SAS_KEY')
         # consumer_group = os.environ.get('EVENT_HUB_CONSUMER_GROUP')
 
         namespace = ''  # os.environ.get('address')
-        eventhub = os.environ.get('address')
+        event_hub = os.environ.get('address')
         user = os.environ.get('user')
         key = os.environ.get('key')
         consumer_group = os.environ.get('consumergroup')
 
-        # Eventhub config and storage manager
-        eh_config = EventHubConfig(namespace, eventhub, user, key, consumer_group=consumer_group)
+        # Event hub config and storage manager
+        eh_config = EventHubConfig(namespace, event_hub, user, key, consumer_group=consumer_group)
         pprint(eh_config)
         eh_options = EPHOptions()
         eh_options.release_pump_on_timeout = True
         # eh_options.
         eh_options.debug_trace = False
-        storage_manager = AzureStorageCheckpointLeaseManager(\
-            storage_account_name, storage_key, storage_container_lease)
+        # storage_manager = AzureStorageCheckpointLeaseManager(\
+        #     storage_account_name, storage_key, storage_container_lease)
 
         # Event loop and host
         host = EventProcessorHost(
             EventProcessor,
             eh_config,
-            storage_manager,
+            # storage_manager,
             ep_params=[],
             eph_options=eh_options,
             loop=loop)
